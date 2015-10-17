@@ -1,14 +1,17 @@
 package com.evatlsong.archetype;
 
-public class HelloWorld {
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 
-	public String sayHello()
-	{
-		return "Hello World\n";
-	}
-	
-	public static void main(String[] args)
-	{
-		System.out.print( new HelloWorld().sayHello() );
-	}
+public class HelloWorld extends HttpServlet {
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        PrintWriter writer = response.getWriter();
+        writer.write("hello world");
+        writer.close();
+    }
 }
