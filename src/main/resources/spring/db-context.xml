@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/jdbc
+       http://www.springframework.org/schema/jdbc/spring-jdbc.xsd">
+
+    <context:property-placeholder location="classpath:dbconfig.properties"/>
+    <beans profile="h2db">
+        <jdbc:embedded-database id="dataSource" type="H2">
+            <jdbc:script location="db/schema.sql"/>
+            <jdbc:script location="test-data.sql"/>
+        </jdbc:embedded-database>
+        <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+            <property name="dataSource" ref="dataSource"/>
+            <property name="packagesToScan" value="com.evatlsong.archetype.domain"/>
+            <property name="hibernateProperties">
+                <props>
+                    <prop key="hibernate.dialect">org.hibernate.dialect.H2Dialect</prop>
+                    <prop key="hibernate.show_sql">true</prop>
+                    <prop key="hibernate.format_sql">true</prop>
+                </props>
+            </property>
+        </bean>
+    </beans>
+    <beans profile="main">
+        <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource"
+              destroy-method="close">
+            <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+            <property name="url" value="${jdbc.url}"/>
+            <property name="username" value="${jdbc.username}"/>
+            <property name="password" value="${jdbc.password}"/>
+            <!--initialSize: 初始化连接-->
+            <property name="initialSize" value="5"/>
+            <!--maxIdle: 最大空闲连接-->
+            <property name="maxIdle" value="25"/>
+            <!--minIdle: 最小空闲连接-->
+            <property name="minIdle" value="5"/>
+            <!--maxActive: 最大连接数量-->
+            <property name="maxActive" value="50"></property>
+            <!--maxWait: 超时等待时间以毫秒为单位 60000毫秒/1000等于60秒-->
+            <property name="maxWait" value="10000"></property>
+            <!--removeAbandoned: 是否自动回收超时连接-->
+            <property name="removeAbandoned" value="true"/>
+            <!--removeAbandonedTimeout: 超时时间(以秒数为单位)-->
+            <property name="removeAbandonedTimeout" value="0"/>
+        </bean>
+        <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+            <property name="dataSource" ref="dataSource"/>
+            <property name="packagesToScan" value="com.evatlsong.archetype.domain"/>
+            <property name="hibernateProperties">
+                <props>
+                    <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                </props>
+            </property>
+        </bean>
+    </beans>
+    <beans profile="h2db, main">
+        <tx:annotation-driven transaction-manager="transactionManager"/>
+        <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+            <property name="sessionFactory" ref="sessionFactory"/>
+        </bean>
+    </beans>
+</beans>
