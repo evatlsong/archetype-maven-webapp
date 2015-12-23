@@ -48,9 +48,20 @@
 		</property>
 	</bean>
 	<bean id="mappingJackson2JsonView" class="org.springframework.web.servlet.view.json.MappingJackson2JsonView"></bean>
-
-<!-- 	<mvc:interceptors>
-		<bean class="GoutripInterceptor" />
-	</mvc:interceptors> -->
+	<bean id="exceptionResolver" class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="com.evatlsong.archetype.exception.RestException">/errors/400</prop>
+				<prop key="java.lang.Exception">/errors/500</prop>
+			</props>
+		</property>
+		<property name="statusCodes">
+			<map>
+				<entry key="/errosr/500" value="500" />
+			</map>
+		</property>
+		<property name="defaultErrorView" value="/errors/error"></property>
+		<property name="exceptionAttribute" value="ex"></property>
+	</bean>
 
 </beans>
